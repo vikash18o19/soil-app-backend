@@ -9,13 +9,15 @@ const refreshTokenModel = require('../models/refreshToken');
 
 router.post('/signup', (req, res) => {
     let name = req.body.name;
+    let phone = req.body.phone;
     let email = req.body.email;
     let password = req.body.password;
     name = name.trim();
+    phone = phone.trim();
     email = email.trim();
     password = password.trim();
 
-    if (name == "" || email == "" || password == "") {
+    if (name == "" || email == "" || phone == "" || password == "") {
         res.status(400).json({
             status: "FAILED",
             message: "Empty input fields"
@@ -51,6 +53,7 @@ router.post('/signup', (req, res) => {
                     .then(hashedPassword => {
                         const newUser = new User({
                             name,
+                            phone,
                             email,
                             password: hashedPassword
                         });
