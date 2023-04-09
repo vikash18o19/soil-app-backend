@@ -302,7 +302,8 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     // Generate password reset token
-    const token = jwt.sign({ userId: user._id }, 'secret', { expiresIn: '1h' });
+    // const token = jwt.sign({ userId: user._id }, 'secret', { expiresIn: '1h' });
+    const token = require('crypto').randomBytes(4).toString('hex');
 
     // Update user record with password reset token
     user.passwordResetToken = token;
@@ -335,20 +336,21 @@ router.post('/forgot-password', async (req, res) => {
             from: '"The Soil App" <soil.app.bit@gmail.com>', // sender address
             to: user.email, // list of receivers
             subject: "Password Reset", // Subject line
-            text: `Please click the following link or paste it into your browser to reset your password:\n\n${process.env.CLIENT_URL}/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.`, // plain text body
-            html: `<p>Please click the following link or paste it into your browser to reset your password:</p><p><a href="${process.env.CLIENT_URL}/reset-password/${token}">${process.env.CLIENT_URL}/reset-password/${token}</a></p><p>If you did not request this, please ignore this email and your password will remain unchanged.</p>` // html body
+            text: `Your password reset code is ${token}. Enter this code to reset your password. This code will expire in 1 hour. If you did not request this, please ignore this email and your password will remain unchanged.`, // plain text body
+            html: `<p>Your password reset code is <strong>${token}</strong>.</p><p> Enter this code to reset your password.</p><p>This code will expire in 1 hour.</p><p>If you did not request this, please ignore this email and your password will remain unchanged.</p>` // html body
         });
 
         res.status(200).json({
             status: "SUCCESS",
-            message: "Password reset link sent to your email"
+            message: "Password reset code sent to your email"
         });
 
     } catch (err) {
         console.log(err);
         res.status(500).json({
             status: "FAILED",
-            message: "An error occurred while sending password reset email."
+            message: "An error occurred while sending password reset email.",
+            error: err
         });
     }
 });
@@ -366,13 +368,13 @@ router.post('/reset-password', async (req, res) => {
 
     try {
         // Verify password reset token
-        const decoded = jwt.verify(token, 'secret');
-        const user = await User.findOne({ _id: decoded.userId });
+        // const decoded = jwt.verify(token, 'secret');
+        const user = await User.findOne({ passwordResetToken: token });
 
         if (!user) {
             return res.status(400).json({
                 status: "FAILED",
-                message: "Invalid password reset token"
+                message: "Invalid password reset token or invalid request."
             });
         }
         if (user.passwordResetToken == null || token != user.passwordResetToken) {
@@ -408,7 +410,8 @@ router.post('/reset-password', async (req, res) => {
         console.log(err);
         res.status(500).json({
             status: "FAILED",
-            message: "An error occurred while resetting password."
+            message: "An error occurred while resetting password.",
+            error: err
         });
     }
 });
