@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const SoilTypeSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   soilType: { type: String, required: true },
+  samplingTime: {
+    type: Date,
+    default: Date.now
+  },
   location: {
     type: {
       type: String,

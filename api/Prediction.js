@@ -22,10 +22,10 @@ router.post('/save', async (req, res) => {
         // Save the new soil type object to the database
         const savedSoilType = await newSoilType.save();
 
-        res.status(201).json(savedSoilType);
+        res.status(201).json({ message: "saved successfully", data: savedSoilType });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server Error');
+        res.status(500).send({ message: 'Server Error', error: err });
     }
 });
 
@@ -55,6 +55,40 @@ router.post('/search', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+router.post('/history', async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        const history = await SoilType.find({
+            userId: userId
+        });
+        const count = history.length;
+        res.json({
+            count: count,
+            data: history
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error });
+    }
+});
+
+router.delete('/delete', async (req, res) => {
+    const { id } = req.body;
+    try {
+        const deletedSoilType = await SoilType.findByIdAndDelete(id);
+        if (!deletedSoilType) {
+            return res.status(404).json({ message: 'Soil Type not found' });
+        }
+        res.json({ message: 'Soil Type deleted successfully', data: deletedSoilType });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error', error: error });
+    }
+});
+
+
 
 
 module.exports = router;
