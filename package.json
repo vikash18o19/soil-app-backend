@@ -17,7 +17,9 @@
     "geolib": "^3.3.3",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.1",
+    "nodemailer": "^6.9.3",
     "nodemon": "^2.0.21",
+    "openai": "^3.2.1",
     "util": "^0.12.5",
     "uuid": "^9.0.0"
   }
